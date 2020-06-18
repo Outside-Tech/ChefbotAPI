@@ -67,7 +67,9 @@ app.post("/witai_test", (req, res) => {
 });
 
 function handleGibberish() {
-  return res.status(200).send("Sorry Bruh");
+  return res
+    .status(202)
+    .send("Sorry Bruh, I don't know what to answer you :'v");
 }
 
 // ----------------------------------------------------------------------------
