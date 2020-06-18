@@ -47,22 +47,21 @@ app.post("/witai_test", (req, res) => {
     .then(async (data) => {
       const intent = (data.intents.length > 0 && data.intents[0]) || "__foo__";
 
+      let ans = "";
       switch (intent.name) {
         case "distanceBetween":
-          const ans = await handleDistanceBetween(data);
+          ans = await handleDistanceBetween(data);
           console.log(ans);
           res.status(200).send(ans);
-
-          return handleDistanceBetween(data);
+          break;
         case "timeAtPlace":
-          const ans2 = await handleTimeAtPlace(data);
-          console.log(ans2);
-          res.status(200).send(ans2);
-
-          return handleTimeAtPlace(data);
+          ans = await handleTimeAtPlace(data);
+          console.log(ans);
+          res.status(200).send(ans);
+          break;
       }
 
-      return handleGibberish();
+      res.status(202).send("Sorry Bruh, I don't know what to answer you :'v");
     })
     .catch((error) => res.status(400).send(error));
 });
