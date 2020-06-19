@@ -2,8 +2,10 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
 const bodyParser = require("body-parser");
+const unirest = require("unirest");
 const { Wit, log } = require("node-wit");
 const interactive = require("node-wit").interactive;
+const fetch = require("node-fetch");
 
 const cors = require("cors");
 
@@ -38,7 +40,7 @@ app.get("/test", (req, res) => {
   res.status(200).send("TESTING API");
 });
 
-//Setup Wit.AI
+//Setup TEST Wit.AI
 app.post("/witai_test", (req, res) => {
   const message = req.body.message;
   console.log(message);
@@ -149,9 +151,52 @@ function currentTimeFromTimezone(loc) {
       return new Date(time).toUTCString("en-US").substring(0, 22);
     });
 }
+//Ending Test API
 
+//Testing
+app.get("/tags", async (req, res) => {
+  var req = unirest("GET", "https://tasty.p.rapidapi.com/tags/list");
+
+  req.headers({
+    "x-rapidapi-host": "tasty.p.rapidapi.com",
+    "x-rapidapi-key": "7S8ICzgRMKmshVbNIIQGTmB01k5ep1sNi4gjsnZ0Ylj5qJQNjv",
+    useQueryString: true,
+  });
+
+  req.end(function (result) {
+    if (!result.error) {
+      res.status(200).send(result.body);
+    } else {
+      res.status(400).send(result.error);
+    }
+  });
+});
+
+app.get("/recipes", async (req, res) => {
+  var req = unirest("GET", "https://tasty.p.rapidapi.com/recipes/list");
+
+  req.query({
+    from: "0",
+    sizes: "20",
+  });
+
+  req.headers({
+    "x-rapidapi-host": "tasty.p.rapidapi.com",
+    "x-rapidapi-key": "7S8ICzgRMKmshVbNIIQGTmB01k5ep1sNi4gjsnZ0Ylj5qJQNjv",
+    useQueryString: true,
+  });
+
+  req.end(function (result) {
+    if (!result.error) {
+      res.status(200).send(result.body);
+    } else {
+      res.status(400).send(result.error);
+    }
+  });
+});
+
+//Port
 app.set("port", 7777);
 const server = app.listen(app.get("port"), () => {
   console.log(`Express running → PORT ${server.address().port}`);
 });
-//Setup Wit.AI
