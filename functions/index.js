@@ -105,9 +105,9 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   var a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(deg2rad(lat1)) *
-      Math.cos(deg2rad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c; // Distance in km
   return d;
@@ -334,6 +334,8 @@ app.post("/chatbot/general", (req, res) => {
         console.log("DATA_WIT_AI", data);
         const intent =
           (data.intents.length > 0 && data.intents[0]) || "__foo__";
+        const entities =
+          (data.entities.length > 0 && data.entities[0]) || "__foo__";
 
         let ans = "";
         switch (intent.name) {
@@ -346,6 +348,33 @@ app.post("/chatbot/general", (req, res) => {
             ans = await handleInsults(idChat);
             await docRef.add(ans);
             return res.status(200).send(ans);
+
+          case "handleFarewell":
+            ans = await handleFarewell(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+          case "handleLove":
+            ans = await handleLove(idChat, entities);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+          case "handleFavoriteChef":
+            ans = await handleFavoriteChef(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+          case "handleStory":
+            ans = await handleStory(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+          case "handleJokes":
+            ans = await handleJokes(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+
         }
 
         ans = formateResponse(idChat, "Sorry bruh :v", 0, -1, false);
@@ -404,6 +433,88 @@ async function handleInsults(id) {
     p_ans[Math.floor(Math.random() * p_ans.length)],
     1,
     4,
+    false
+  );
+  return respo;
+}
+
+async function handleFarewell(id) {
+  let = p_ans = ["See you later, Alligator", "Bye! I hope to see you again", 'Have a nice day! See you later'];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    1,
+    3,
+    false
+  );
+  return respo;
+}
+
+async function handleLove(id, entities) {
+  let = name = getName(id);
+  var affec;
+  if (entities["affection:affection"] !== null) {
+    let = loveMsg = `I ${entities["affection:affection"][0].value} too, `;
+    affec = true;
+  }
+  let = p_ans = ['Thank you! ' + name + ' <3', "You are very nice! Thank you!", loveMsg + name];
+  let = option = Math.floor(Math.random() * p_ans.length);
+  if (option === 0) {
+    let = img = 1;
+    let = emoji = 2;
+  } else if (option === 1) {
+    img = 0;
+    emoji = -1;
+  }
+  else {
+    if (affec) {
+      img = 0;
+      emoji = -1;
+    } else {
+      option = 1;
+    }
+  }
+  const respo = formateResponse(
+    id,
+    p_ans[option],
+    img,
+    emoji,
+    false
+  );
+  return respo;
+}
+
+async function handleFavoriteChef(id) {
+  let = p_ans = ["My favorite food is fresh wire-spaghetti with synthetic oil, but I don't recommend you to eat it thoug"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    0,
+    -1,
+    false
+  );
+  return respo;
+}
+
+async function handleStory(id) {
+  let = p_ans = ["Sure, all started when I went to a culinary school in Japan, in there all decisions were taken with cooking battles. My mision was to be the best of all and to do that I needed to defeat the council of ten... wait that's the plot of a popular anime haha, hopefully in the future I will tell your story"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    0,
+    -1,
+    false
+  );
+  return respo;
+}
+
+async function handleJokes(id) {
+  let = p_ans = ["I was not programmed to tell jokes but, What do you call a fake noodle? An Impasta.", "Did you hear about the restaurant on the moon? Great food, no atmosphere.", "What part of a meal makes you the most sleepy? The nap-kin"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    0,
+    -1,
     false
   );
   return respo;
