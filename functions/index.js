@@ -409,9 +409,19 @@ app.post("/chatbot/general", (req, res) => {
             await docRef.add(ans);
             return res.status(200).send(ans);
 
+            case "handleName":
+            ans = await handleName(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+            case "handleGreetingsResponse":
+            ans = await handleGreetingsResponse(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
         }
 
-        ans = formateResponse(idChat, "Sorry bruh :v", 0, -1, false);
+        ans = formateResponse(idChat, "I'm sorry, I am not able to understand, please ask me in another way or something else 😓", 0, -1, false);
         await docRef.add(ans);
         return res.status(200).send(ans);
       } catch (error) {
@@ -573,6 +583,31 @@ async function handleCooking(id, idRecipe) {
 async function handleGreeting(id) {
   let name = await getName(id);
   let = p_ans = ["Hello There!", "Hi " + name + "!, I'm Leo, how may I help you?"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    0,
+    -1,
+    false
+  );
+  return respo;
+}
+async function handleGreetingsResponse(id) {
+  let name = await getName(id);
+  let = p_ans = ["I'm fine! Thanks for asking, I hope you are fine as well, do you want me to tell you a joke, tell a story or teach you how to cook? 🤭"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    0,
+    -1,
+    false
+  );
+  return respo;
+}
+
+async function handleName(id) {
+  let name = await getName(id);
+  let = p_ans = ["My name is Leo, in honor of Leonardo Bonacci, the famous mathematician, you are "+name+" right? It's a cool name, it really suits you. How can I help you toda?"];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
