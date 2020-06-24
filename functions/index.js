@@ -105,9 +105,9 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   var a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(deg2rad(lat1)) *
-    Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon / 2) *
-    Math.sin(dLon / 2);
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c; // Distance in km
   return d;
@@ -445,6 +445,8 @@ app.post("/chatbot/howtocook", (req, res) => {
   const message = req.body.message;
   const idChat = req.body.idChat;
   const idRecipe = req.body.idRecipe;
+  const context = req.body.context;
+  const position = req.body.position;
 
   const docRef = db.collection("chats").doc(idChat).collection("messages");
   // test
@@ -460,7 +462,7 @@ app.post("/chatbot/howtocook", (req, res) => {
         let ans = "";
         switch (intent.name) {
           case "handleStartCook":
-            ans = await handleCooking(idChat, idRecipe);
+            ans = await handleCooking(idChat, idRecipe, context, position);
             await docRef.add(ans);
             return res.status(200).send(ans);
         }
@@ -481,6 +483,14 @@ async function getName(id) {
   let item = await query.get();
   let response = item.data().name;
   console.log("RESPUESTA NAME", response);
+  return response;
+}
+
+async function getRecipeName(id) {
+  let query = db.collection("recipes").doc((parseInt(id) + 1).toString());
+  let item = await query.get();
+  let response = item.data().name;
+  console.log("RESPEUSTA NAME", response);
   return response;
 }
 
@@ -565,18 +575,48 @@ Code of images
    
 */
 
-async function handleCooking(id, idRecipe) {
+async function handleCooking(id, idRecipe, context, position) {
+  console.log("0", id);
+  console.log("0", idRecipe);
+  console.log("0", context);
+  console.log("0", position);
+  let r_name = await getRecipeName(idRecipe);
   let = p_ans = [
-    "Lets start!! with" + idRecipe,
-    "Ok! let's start with with " + idRecipe,
+    "Lets start!! with" + r_name,
+    "Ok! let's start with with " + r_name,
   ];
-  const respo = formateResponse(
-    id,
-    p_ans[Math.floor(Math.random() * p_ans.length)],
-    1,
-    3,
-    false
-  );
+
+  let respo = "";
+  switch (context) {
+    case 0:
+      respo = formateResponseCook(
+        id,
+        p_ans[Math.floor(Math.random() * p_ans.length)],
+        1,
+        3,
+        false,
+        parseInt(idRecipe) + 1,
+        context,
+        position
+      );
+      break;
+    case 1:
+      respo = formateResponseCook(
+        id,
+        p_ans[Math.floor(Math.random() * p_ans.length)],
+        1,
+        3,
+        false,
+        parseInt(idRecipe) + 1,
+        context,
+        position
+      );
+      break;
+
+    default:
+      respo = formateResponse(id, "It was a pleasure", 1, 3, false);
+      break;
+  }
   return respo;
 }
 
@@ -658,7 +698,11 @@ async function handleInsults(id) {
 }
 
 async function handleFarewell(id) {
-  let = p_ans = ["See you later, Alligator", "Bye! I hope to see you again", 'Have a nice day! See you later'];
+  let = p_ans = [
+    "See you later, Alligator",
+    "Bye! I hope to see you again",
+    "Have a nice day! See you later",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -669,23 +713,14 @@ async function handleFarewell(id) {
   return respo;
 }
 
-async function handleThanks(id) {
-  let name = await getName(id);
-  let = p_ans = ["You're welcome " + name + '!  😃', "It's a pleasure to help"];
-  const respo = formateResponse(
-    id,
-    p_ans[Math.floor(Math.random() * p_ans.length)],
-    0,
-    -1,
-    false
-  );
-  return respo;
-}
-
-async function handleLove(id) {
-  let name = await getName(id);
-
-  let = p_ans = ['Thank you ' + name + '! 💜', "You are very nice! Thank you!"];
+async function handleLove(id, entities) {
+  let = name = getName(id);
+  var affec;
+  if (entities["affection:affection"] !== null) {
+    let = loveMsg = `I ${entities["affection:affection"][0].value} too, `;
+    affec = true;
+  }
+  let = p_ans = ['Thank you! ' + name + ' <3', "You are very nice! Thank you!", loveMsg + name];
   let = option = Math.floor(Math.random() * p_ans.length);
   if (option !== 0) {
     let = img = 1;
@@ -732,7 +767,9 @@ async function handlePurpose(id) {
 
 
 async function handleStory(id) {
-  let = p_ans = ["Sure, all started when I went to a culinary school in Japan, in there all decisions were taken with cooking battles. My mision was to be the best of all and to do that I needed to defeat the council of ten... wait that's the plot of a popular anime haha, hopefully in the future I will tell your story"];
+  let = p_ans = [
+    "Sure, all started when I went to a culinary school in Japan, in there all decisions were taken with cooking battles. My mision was to be the best of all and to do that I needed to defeat the council of ten... wait that's the plot of a popular anime haha, hopefully in the future I will tell your story",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -744,7 +781,11 @@ async function handleStory(id) {
 }
 
 async function handleJokes(id) {
-  let = p_ans = ["I was not programmed to tell jokes but, What do you call a fake noodle? An Impasta.", "Did you hear about the restaurant on the moon? Great food, no atmosphere.", "What part of a meal makes you the most sleepy? The nap-kin"];
+  let = p_ans = [
+    "I was not programmed to tell jokes but, What do you call a fake noodle? An Impasta.",
+    "Did you hear about the restaurant on the moon? Great food, no atmosphere.",
+    "What part of a meal makes you the most sleepy? The nap-kin",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -835,6 +876,125 @@ function formateResponse(id, message, anstype, ansimg, card) {
     type: type,
     img_url: img,
     cards: card,
+  };
+
+  return data;
+}
+
+//COMMET FOR TEST PULLING
+async function formateResponseCook(
+  id,
+  message,
+  anstype,
+  ansimg,
+  card,
+  idRecipe,
+  context,
+  position
+) {
+  let type = "";
+  let img = "";
+  console.log(card);
+  switch (anstype) {
+    case 0:
+      type = "text";
+      break;
+    case 1:
+      type = "withImage";
+      break;
+    case 2:
+      type = "withVideo";
+
+      break;
+    case 3:
+      type = "withCard";
+      break;
+    default:
+      type = "text";
+      break;
+  }
+
+  /*
+    Code of images
+    0-> :O Suprised
+    1-> :( Sad
+    2-> :') Excited
+    3-> :) Teaching
+    4-> >:C Furious
+  */
+
+  switch (ansimg) {
+    case 0:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-05.png?alt=media&token=deb997cf-64fb-4d3e-90ce-b22dc18a1e29";
+      break;
+    case 1:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-06.png?alt=media&token=49f2282c-5b02-4c30-a6e0-6fbd8020feec";
+      break;
+    case 2:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-07.png?alt=media&token=ddf1fa81-9e8a-4097-8eff-c7167255ee89";
+
+      break;
+    case 3:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-08.png?alt=media&token=c9ee24e3-7288-4451-9ba5-760d9f9dd3a4";
+      break;
+    case 4:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-09.png?alt=media&token=0fbc83db-d14c-4cdc-9988-7ae29559c7a6";
+      break;
+    default:
+      img = "";
+      break;
+  }
+
+  if (context == 1) {
+    position++;
+  }
+
+  let response = [];
+
+  if (context == 0) {
+    let query = db.collection("recipe_detail").where("id", "==", idRecipe);
+
+    await query.get().then((querySnapshot) => {
+      let docs = querySnapshot.docs;
+      for (let doc of docs) {
+        const selectedItem = {
+          text: doc.data().sections,
+        };
+        response.push(selectedItem);
+      }
+    });
+  }
+
+  if (context == 1) {
+    position = position + 1;
+    let query = db.collection("recipe_detail").where("id", "==", idRecipe);
+
+    await query.get().then((querySnapshot) => {
+      let docs = querySnapshot.docs;
+      for (let doc of docs) {
+        const selectedItem = {
+          text: doc.data().instructions,
+        };
+        response.push(selectedItem);
+      }
+    });
+  }
+
+  let data = {
+    idChat: id,
+    uid: "X4TkYxTgloQlFjgPKO6ciKSUeL63",
+    message: message,
+    message_r: response,
+    type: type,
+    img_url: img,
+    cards: card,
+    context: context,
+    position: position,
   };
 
   return data;
