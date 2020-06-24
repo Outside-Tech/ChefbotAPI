@@ -17,7 +17,7 @@ const app = express();
 const main = express();
 
 main.use("/api/v1", app);
-main.use(cors({ origin: true }));
+main.use(cors({ origin: false }));
 main.use(bodyParser.json());
 main.use(bodyParser.urlencoded({ extended: true }));
 
@@ -153,8 +153,14 @@ function currentTimeFromTimezone(loc) {
 }
 //Ending Test API
 
-//Testing
+//START TASTY API INFO -- CLIENT
 app.get("/tags", async (req, res) => {
+  res.header("Content-Type", "application/json");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+  );
   var req = unirest("GET", "https://tasty.p.rapidapi.com/tags/list");
 
   req.headers({
@@ -173,6 +179,12 @@ app.get("/tags", async (req, res) => {
 });
 
 app.get("/recipes", async (req, res) => {
+  res.header("Content-Type", "application/json");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+  );
   var req = unirest("GET", "https://tasty.p.rapidapi.com/recipes/list");
 
   req.query({
@@ -195,8 +207,275 @@ app.get("/recipes", async (req, res) => {
   });
 });
 
-//Port
-app.set("port", 7777);
-const server = app.listen(app.get("port"), () => {
-  console.log(`Express running → PORT ${server.address().port}`);
+app.get("/recipe_detail/", (req, res) => {
+  res.header("Content-Type", "application/json");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+  );
+  var req = unirest("GET", "https://tasty.p.rapidapi.com/recipes/detail");
+  req.query({
+    id: req.id,
+  });
+
+  req.headers({
+    "x-rapidapi-host": "tasty.p.rapidapi.com",
+    "x-rapidapi-key": "7S8ICzgRMKmshVbNIIQGTmB01k5ep1sNi4gjsnZ0Ylj5qJQNjv",
+    useQueryString: true,
+  });
+
+  req.end(function (result) {
+    if (!result.error) {
+      res.status(200).send(result.body);
+    } else {
+      res.status(400).send(result.error);
+    }
+  });
 });
+//END TASTY API INFO -- CLIENT
+
+//START CHATBOT INTERACTION -- GENERAL
+
+app.post("/chatbot/test", (req, res) => {
+  res.header("Content-Type", "application/json");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+  );
+  //Handling the response of witAI
+  const message = req.body.message;
+  const idChat = req.body.idChat;
+  const docRef = db.collection("chats").doc(idChat).collection("messages");
+
+  console.log(message);
+  client
+    .message(message)
+    .then(async (data) => {
+      const intent = (data.intents.length > 0 && data.intents[0]) || "__foo__";
+
+      let unknow_ans = {
+        idChat: idChat,
+        uid: "X4TkYxTgloQlFjgPKO6ciKSUeL63",
+        message: "Oh no!, I'm not ready to help you with that, yet....",
+        type: "withImage",
+        img_url:
+          "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-05.png?alt=media&token=deb997cf-64fb-4d3e-90ce-b22dc18a1e29",
+      };
+
+      let greatting = {
+        idChat: idChat,
+        uid: "X4TkYxTgloQlFjgPKO6ciKSUeL63",
+        message: "Hey, hello!!! my name is Leo :v",
+        type: "withImage",
+        img_url:
+          "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-05.png?alt=media&token=deb997cf-64fb-4d3e-90ce-b22dc18a1e29",
+      };
+
+      let insult = {
+        idChat: idChat,
+        uid: "X4TkYxTgloQlFjgPKO6ciKSUeL63",
+        message: "What? Fuck off .l.",
+        type: "withImage",
+        img_url:
+          "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-09.png?alt=media&token=0fbc83db-d14c-4cdc-9988-7ae29559c7a6",
+      };
+
+      let ans = "";
+      switch (intent.name) {
+        case "handleGreetings":
+          try {
+            await docRef.add(greatting);
+            return res.status(200).send(greatting);
+          } catch (error) {
+            console.log(error);
+            return res.status(500).send(error);
+          }
+        case "handleInsults":
+          try {
+            await docRef.add(insult);
+            return res.status(200).send(insult);
+          } catch (error) {
+            console.log(error);
+            return res.status(500).send(error);
+          }
+      }
+
+      try {
+        await docRef.add(unknow_ans);
+        return res.status(200).send(unknow_ans);
+      } catch (error) {
+        console.log(error);
+        return res.status(500).send(error);
+      }
+    })
+    .catch((error) => res.status(400).send(error));
+});
+
+//Greetings
+app.post("/chatbot/general", (req, res) => {
+  res.header("Content-Type", "application/json");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+  );
+  //Handling the response of witAI
+  const message = req.body.message;
+  const idChat = req.body.idChat;
+  const docRef = db.collection("chats").doc(idChat).collection("messages");
+
+  console.log("DATA_RECIVED", req.body);
+  client
+    .message(message)
+    .then(async (data) => {
+      try {
+        console.log("DATA_WIT_AI", data);
+        const intent =
+          (data.intents.length > 0 && data.intents[0]) || "__foo__";
+
+        let ans = "";
+        switch (intent.name) {
+          case "handleGreetings":
+            ans = await handleGreeting(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+          case "handleInsults":
+            ans = await handleInsults(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+        }
+
+        ans = formateResponse(idChat, "Sorry bruh :v", 0, -1, false);
+        await docRef.add(ans);
+        return res.status(200).send(ans);
+      } catch (error) {
+        console.log(error);
+        return res.status(500).send(error);
+      }
+    })
+    .catch((error) => res.status(400).send(error));
+});
+/*
+formateResponse(idchat:number, message:string, anstype:number, ansimg:number, card:boolean)
+
+Code of types
+    0-> text
+    1-> withImage
+    2-> withVideo
+    3-> withCard
+
+Code of images
+    0-> :O Suprised
+    1-> :( Sad
+    2-> :') Excited
+    3-> :) Teaching
+    4-> >:C Furious
+
+    
+   
+*/
+async function handleGreeting(id) {
+  let = p_ans = ["Hello There!", "Hi, my name s leo"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    0,
+    -1,
+    false
+  );
+  return respo;
+}
+
+async function handleInsults(id) {
+  let = p_ans = ["Hey don't insult me", "Insult Response 2"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    1,
+    4,
+    false
+  );
+  return respo;
+}
+
+function formateResponse(id, message, anstype, ansimg, card) {
+  let type = "";
+  let img = "";
+  console.log(card);
+  switch (anstype) {
+    case 0:
+      type = "text";
+      break;
+    case 1:
+      type = "withImage";
+      break;
+    case 2:
+      type = "withVideo";
+
+      break;
+    case 3:
+      type = "withCard";
+      break;
+    default:
+      type = "text";
+      break;
+  }
+
+  /*
+    Code of images
+    0-> :O Suprised
+    1-> :( Sad
+    2-> :') Excited
+    3-> :) Teaching
+    4-> >:C Furious
+  */
+
+  switch (ansimg) {
+    case 0:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-05.png?alt=media&token=deb997cf-64fb-4d3e-90ce-b22dc18a1e29";
+      break;
+    case 1:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-06.png?alt=media&token=49f2282c-5b02-4c30-a6e0-6fbd8020feec";
+      break;
+    case 2:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-07.png?alt=media&token=ddf1fa81-9e8a-4097-8eff-c7167255ee89";
+
+      break;
+    case 3:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-08.png?alt=media&token=c9ee24e3-7288-4451-9ba5-760d9f9dd3a4";
+      break;
+    case 4:
+      img =
+        "https://firebasestorage.googleapis.com/v0/b/fibonacci-chatbot.appspot.com/o/LEO%20CHEFSITO-09.png?alt=media&token=0fbc83db-d14c-4cdc-9988-7ae29559c7a6";
+      break;
+    default:
+      img = "";
+      break;
+  }
+
+  let data = {
+    idChat: id,
+    uid: "X4TkYxTgloQlFjgPKO6ciKSUeL63",
+    message: message,
+    type: type,
+    img_url: img,
+    cards: [],
+  };
+
+  return data;
+}
+
+//END CHATBOT INTERACTION -- GENERAL
+
+// //Port
+// app.set("port", 7777);
+// const server = app.listen(app.get("port"), () => {
+//   console.log(`Express running → PORT ${server.address().port}`);
+// });
