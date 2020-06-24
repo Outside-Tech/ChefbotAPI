@@ -401,6 +401,7 @@ async function handleInsults(id) {
   return respo;
 }
 
+//FORMATTING RESPONSE TO SEND WEBPAGE
 function formateResponse(id, message, anstype, ansimg, card) {
   let type = "";
   let img = "";
