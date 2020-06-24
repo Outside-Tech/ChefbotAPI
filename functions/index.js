@@ -313,7 +313,7 @@ app.post("/chatbot/test", (req, res) => {
     .catch((error) => res.status(400).send(error));
 });
 
-//Greetings
+//Greetings -- general
 app.post("/chatbot/general", (req, res) => {
   res.header("Content-Type", "application/json");
   res.header("Access-Control-Allow-Origin", "*");
@@ -346,6 +346,11 @@ app.post("/chatbot/general", (req, res) => {
 
           case "handleInsults":
             ans = await handleInsults(idChat);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+
+          case "handleSuggest":
+            ans = await handleSuggestions(idChat);
             await docRef.add(ans);
             return res.status(200).send(ans);
 
@@ -388,11 +393,85 @@ app.post("/chatbot/general", (req, res) => {
     .catch((error) => res.status(400).send(error));
 });
 
+//How to --cook
+
+app.post("/chatbot/howtocook", (req, res) => {
+  res.header("Content-Type", "application/json");
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+  );
+  //Handling the response of witAI
+  const message = req.body.message;
+  const idChat = req.body.idChat;
+  const idRecipe = req.body.idRecipe;
+
+  const docRef = db.collection("chats").doc(idChat).collection("messages");
+  // test
+  console.log("DATA_RECIVED", req.body);
+  client
+    .message(message)
+    .then(async (data) => {
+      try {
+        console.log("DATA_WIT_AI", data);
+        const intent =
+          (data.intents.length > 0 && data.intents[0]) || "__foo__";
+
+        let ans = "";
+        switch (intent.name) {
+          case "handleStartCook":
+            ans = await handleCooking(idChat, idRecipe);
+            await docRef.add(ans);
+            return res.status(200).send(ans);
+        }
+
+        ans = formateResponse(idChat, "Sorry, I can't help you:(", 0, 1, false);
+        await docRef.add(ans);
+        return res.status(200).send(ans);
+      } catch (error) {
+        console.log(error);
+        return res.status(500).send(error);
+      }
+    })
+    .catch((error) => res.status(400).send(error));
+});
+
 async function getName(id) {
-  const document = db.collection("chats").doc(id);
-  let item = await document.get();
+  let query = db.collection("chats").doc(id);
+  let item = await query.get();
   let response = item.data().name;
+  console.log("RESPEUSTA NAME", response);
   return response;
+}
+
+async function handleSuggestions(id) {
+  let number = Math.floor(Math.random() * 292);
+  let query = db
+    .collection("recipes")
+    .where("id", ">", number)
+    .orderBy("id")
+    .limit(4);
+  let response = [];
+  await query.get().then((querySnapshot) => {
+    let docs = querySnapshot.docs;
+    for (let doc of docs) {
+      const selectedItem = {
+        id: doc.data().id,
+        item: doc.data(),
+      };
+      response.push(selectedItem);
+    }
+  });
+  let = p_ans = ["I really like this ones!", "You could try one of these"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    3,
+    -1,
+    response
+  );
+  return respo;
 }
 
 /*
@@ -414,6 +493,22 @@ Code of images
     
    
 */
+
+async function handleCooking(id, idRecipe) {
+  let = p_ans = [
+    "Lets start!! with" + idRecipe,
+    "Ok! let's start with with " + idRecipe,
+  ];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    1,
+    3,
+    false
+  );
+  return respo;
+}
+
 async function handleGreeting(id) {
   let = p_ans = ["Hello There!", "Hi, my name s leo"];
   const respo = formateResponse(
@@ -427,7 +522,8 @@ async function handleGreeting(id) {
 }
 
 async function handleInsults(id) {
-  let = p_ans = ["Hey don't insult me", "Insult Response 2"];
+  let name = await getName(id);
+  let = p_ans = ["Hey don't insult me", "Fuck you too " + name + "🤬"];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -587,7 +683,7 @@ function formateResponse(id, message, anstype, ansimg, card) {
     message: message,
     type: type,
     img_url: img,
-    cards: [],
+    cards: card,
   };
 
   return data;
