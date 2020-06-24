@@ -325,7 +325,7 @@ app.post("/chatbot/general", (req, res) => {
   const message = req.body.message;
   const idChat = req.body.idChat;
   const docRef = db.collection("chats").doc(idChat).collection("messages");
-
+ // test
   console.log("DATA_RECIVED", req.body);
   client
     .message(message)
