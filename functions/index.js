@@ -402,6 +402,7 @@ async function handleInsults(id) {
 }
 
 //FORMATTING RESPONSE TO SEND WEBPAGE
+//COMMET FOR TEST PULLING
 function formateResponse(id, message, anstype, ansimg, card) {
   let type = "";
   let img = "";
