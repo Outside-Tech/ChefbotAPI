@@ -607,7 +607,7 @@ async function handleGreetingsResponse(id) {
 
 async function handleName(id) {
   let name = await getName(id);
-  let = p_ans = ["My name is Leo, in honor of Leonardo Bonacci, the famous mathematician, you are "+name+" right? It's a cool name, it really suits you. How can I help you toda?"];
+  let = p_ans = ["My name is Leo, in honor of Leonardo Bonacci, the famous mathematician, you are "+name+" right? It's a cool name, it really suits you. How can I help you today?"];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
