@@ -325,7 +325,7 @@ app.post("/chatbot/general", (req, res) => {
   const message = req.body.message;
   const idChat = req.body.idChat;
   const docRef = db.collection("chats").doc(idChat).collection("messages");
- // test
+  // test
   console.log("DATA_RECIVED", req.body);
   client
     .message(message)
@@ -358,6 +358,14 @@ app.post("/chatbot/general", (req, res) => {
     })
     .catch((error) => res.status(400).send(error));
 });
+
+async function getName(id) {
+  const document = db.collection("chats").doc(id);
+  let item = await document.get();
+  let response = item.data().name;
+  return response;
+}
+
 /*
 formateResponse(idchat:number, message:string, anstype:number, ansimg:number, card:boolean)
 
