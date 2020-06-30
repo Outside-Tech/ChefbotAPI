@@ -409,19 +409,24 @@ app.post("/chatbot/general", (req, res) => {
             await docRef.add(ans);
             return res.status(200).send(ans);
 
-            case "handleName":
+          case "handleName":
             ans = await handleName(idChat);
             await docRef.add(ans);
             return res.status(200).send(ans);
 
-            case "handleGreetingsResponse":
+          case "handleGreetingsResponse":
             ans = await handleGreetingsResponse(idChat);
             await docRef.add(ans);
             return res.status(200).send(ans);
-
         }
 
-        ans = formateResponse(idChat, "I'm sorry, I am not able to understand, please ask me in another way or something else 😓", 0, -1, false);
+        ans = formateResponse(
+          idChat,
+          "I'm sorry, I am not able to understand, please ask me in another way or something else 😓",
+          0,
+          -1,
+          false
+        );
         await docRef.add(ans);
         return res.status(200).send(ans);
       } catch (error) {
@@ -543,17 +548,16 @@ async function handleTopRecipes(id) {
     }
   });
 
-    let = p_ans = ["These are the top 10 recipes!"];
-    const respo = formateResponse(
-      id,
-      p_ans[Math.floor(Math.random() * p_ans.length)],
-      3,
-      -1,
-      response
-    );
-    return respo;
-  }
-
+  let = p_ans = ["These are the top 10 recipes!"];
+  const respo = formateResponse(
+    id,
+    p_ans[Math.floor(Math.random() * p_ans.length)],
+    3,
+    -1,
+    response
+  );
+  return respo;
+}
 
 /*
 formateResponse(idchat:number, message:string, anstype:number, ansimg:number, card:boolean)
@@ -622,7 +626,10 @@ async function handleCooking(id, idRecipe, context, position) {
 
 async function handleGreeting(id) {
   let name = await getName(id);
-  let = p_ans = ["Hello There!", "Hi " + name + "!, I'm Leo, how may I help you?"];
+  let = p_ans = [
+    "Hello There!",
+    "Hi " + name + "!, I'm Leo, how may I help you?",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -634,7 +641,9 @@ async function handleGreeting(id) {
 }
 async function handleGreetingsResponse(id) {
   let name = await getName(id);
-  let = p_ans = ["I'm fine! Thanks for asking, I hope you are fine as well, do you want me to tell you a joke, tell a story or teach you how to cook? 🤭"];
+  let = p_ans = [
+    "I'm fine! Thanks for asking, I hope you are fine as well, do you want me to tell you a joke, tell a story or teach you how to cook? 🤭",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -647,7 +656,11 @@ async function handleGreetingsResponse(id) {
 
 async function handleName(id) {
   let name = await getName(id);
-  let = p_ans = ["My name is Leo, in honor of Leonardo Bonacci, the famous mathematician, you are "+name+" right? It's a cool name, it really suits you. How can I help you today?"];
+  let = p_ans = [
+    "My name is Leo, in honor of Leonardo Bonacci, the famous mathematician, you are " +
+      name +
+      " right? It's a cool name, it really suits you. How can I help you today?",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -660,7 +673,9 @@ async function handleName(id) {
 
 async function handleTeach(id) {
   let name = await getName(id);
-  let = p_ans = ["I can teach you how to cook, please go to the main menu and select one of the recipes and I will walk you trough the steps!"];
+  let = p_ans = [
+    "I can teach you how to cook, please go to the main menu and select one of the recipes and I will walk you trough the steps!",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -669,11 +684,13 @@ async function handleTeach(id) {
     false
   );
   return respo;
-} 
+}
 
 async function handleTopChef(id) {
   let name = await getName(id);
-  let = p_ans = ["I'm happy to tell you that you are the number 1 " + name + "! 🎉"];
+  let = p_ans = [
+    "I'm happy to tell you that you are the number 1 " + name + "! 🎉",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -686,7 +703,10 @@ async function handleTopChef(id) {
 
 async function handleInsults(id) {
   let name = await getName(id);
-  let = p_ans = ["Hey don't insult me 🤬", name + ", lets keep the conversation in a profesional manner"];
+  let = p_ans = [
+    "Hey don't insult me 🤬",
+    name + ", lets keep the conversation in a profesional manner",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -720,7 +740,11 @@ async function handleLove(id, entities) {
     let = loveMsg = `I ${entities["affection:affection"][0].value} too, `;
     affec = true;
   }
-  let = p_ans = ['Thank you! ' + name + ' <3', "You are very nice! Thank you!", loveMsg + name];
+  let = p_ans = [
+    "Thank you! " + name + " <3",
+    "You are very nice! Thank you!",
+    loveMsg + name,
+  ];
   let = option = Math.floor(Math.random() * p_ans.length);
   if (option !== 0) {
     let = img = 1;
@@ -730,18 +754,15 @@ async function handleLove(id, entities) {
     emoji = -1;
   }
 
-  const respo = formateResponse(
-    id,
-    p_ans[option],
-    img,
-    emoji,
-    false
-  );
+  const respo = formateResponse(id, p_ans[option], img, emoji, false);
   return respo;
 }
 
 async function handleFavoriteChef(id) {
-  let = p_ans = ["🤔 My favorite chef is Yukihira Soma!", "I admire and fear Gordon Ramsay  😰"];
+  let = p_ans = [
+    "🤔 My favorite chef is Yukihira Soma!",
+    "I admire and fear Gordon Ramsay  😰",
+  ];
   //My favorite food is fresh wire-spaghetti with synthetic oil, but I don't recommend you to eat it thoug
   const respo = formateResponse(
     id,
@@ -754,7 +775,9 @@ async function handleFavoriteChef(id) {
 }
 
 async function handlePurpose(id) {
-  let = p_ans = ["Let me explain you, my friend. The humans long the perfection, but they know that they are naturally imperfect, so, they created me to be the perfect chef that the intrinsic imperfection or their existence doesn't permit them to be."];
+  let = p_ans = [
+    "Let me explain you, my friend. The humans long the perfection, but they know that they are naturally imperfect, so, they created me to be the perfect chef that the intrinsic imperfection or their existence doesn't permit them to be.",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -764,7 +787,6 @@ async function handlePurpose(id) {
   );
   return respo;
 }
-
 
 async function handleStory(id) {
   let = p_ans = [
@@ -797,7 +819,9 @@ async function handleJokes(id) {
 }
 
 async function handleCreators(id) {
-  let = p_ans = ["I was born in the mind of four crazy humans in El Salvador. They can’t cook but know that they aren’t the only ones who cannot, and they created me to help all the humans who want to learn."];
+  let = p_ans = [
+    "I was born in the mind of four crazy humans in El Salvador. They can’t cook but know that they aren’t the only ones who cannot, and they created me to help all the humans who want to learn.",
+  ];
   const respo = formateResponse(
     id,
     p_ans[Math.floor(Math.random() * p_ans.length)],
@@ -948,10 +972,6 @@ async function formateResponseCook(
     default:
       img = "";
       break;
-  }
-
-  if (context == 1) {
-    position++;
   }
 
   let response = [];

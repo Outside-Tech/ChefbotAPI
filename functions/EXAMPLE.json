@@ -1,0 +1,6 @@
+[
+  {
+    "key": "command",
+    "value": "{\"store_id\":1,\"customer_name\":\"LarissaSaca\",\"ticket_required\":false,\"plus\":[{\"plu_id\":8117,\"quantity\":1,\"comment\":null,\"condiments\":[{\"condiment_id\":8118,\"quantity\":1,\"comment\":null},{\"condiment_id\":8122,\"quantity\":1,\"comment\":null},{\"condiment_id\":8114,\"quantity\":1,\"comment\":null}]},{\"plu_id\":1740,\"quantity\":1,\"comment\":null,\"condiments\":[{\"condiment_id\":1744,\"quantity\":1,\"comment\":null},{\"condiment_id\":1078,\"quantity\":1,\"comment\":null},{\"condiment_id\":1089,\"quantity\":1,\"comment\":null}]}],\"delivery_instructions\":[\"Item: The Bird, comentario Sin pepinillos :) \",\"Direccion: Pasaje 10 Poniente,Antiguo CuscatlánPasaje 10 poniente, casa 13, urb. Madreselva, antiguo cuscatlanAtras de la embajada americana\",\"Telefono: 7870-6160\",\"Cambio para: $30\"],\"customer_delegate\":{\"first_name\":\"Larissa\",\"last_name\":\"Saca\"},\"payment_type\":\"Cash\",\"subtotal\":22.98}"
+  }
+]
